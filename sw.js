@@ -1,5 +1,5 @@
 // Service worker: deixa o app abrir rápido e funcionar sem internet (modo local).
-const VERSAO = 'deposito-v4';
+const VERSAO = 'deposito-v5';
 const ARQUIVOS = [
   './',
   'index.html',

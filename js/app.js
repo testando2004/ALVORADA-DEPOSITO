@@ -196,10 +196,10 @@
   function shell({ title, sub = '', back = '#/', right = '', body, footer = '', wide = false }) {
     app.className = wide ? 'wide' : '';
     app.innerHTML = `
-      <header class="topbar${wide ? ' flat' : ''}"><div class="topbar-row">
+      <header class="topbar"><div class="topbar-row">
         ${back ? `<a class="icon-btn" href="${back}" aria-label="Voltar">${ic('back')}</a>` : ''}
-        <h1>${title}</h1>${right}
-      </div>${sub ? `<div class="sub">${sub}</div>` : ''}</header>
+        <h1>${title}${sub ? `<small>${sub}</small>` : ''}</h1>${right}
+      </div></header>
       <main>${body}</main>
       ${footer ? `<div class="footer-bar">${footer}</div>` : ''}`;
   }
