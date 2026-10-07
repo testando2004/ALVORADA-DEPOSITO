@@ -196,7 +196,7 @@
   function shell({ title, sub = '', back = '#/', right = '', body, footer = '', wide = false }) {
     app.className = wide ? 'wide' : '';
     app.innerHTML = `
-      <header class="topbar"><div class="topbar-row">
+      <header class="topbar${wide ? ' flat' : ''}"><div class="topbar-row">
         ${back ? `<a class="icon-btn" href="${back}" aria-label="Voltar">${ic('back')}</a>` : ''}
         <h1>${title}</h1>${right}
       </div>${sub ? `<div class="sub">${sub}</div>` : ''}</header>
@@ -291,55 +291,48 @@
       le ? DB.list('envelopes', { lote_id: le.id }) : [],
     ]);
     const h = new Date().getHours();
-    const [saud, emoji] = h < 12 ? ['Bom dia', '☀️'] : h < 18 ? ['Boa tarde', '🌤️'] : ['Boa noite', '🌙'];
+    const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
     // Só o primeiro nome (nunca e-mail completo); sem nome → "Administrador"
     const primeiro = (S.user.nome || '').split('@')[0].trim().split(/\s+/)[0] || 'Administrador';
     const totalDia = somar(ic_) + somar(ie);
-    const contador = (n, total, nome) => n
-      ? `<div class="counter ok"><span class="n">${n}</span><span class="t">${n === 1 ? 'lançamento' : 'lançamentos'} hoje<small>${brl(total)} em ${nome}</small></span></div>`
-      : `<div class="counter zero"><span class="n">0</span><span class="t">lançamentos hoje<small>Toque para começar</small></span></div>`;
+    // Contador discreto: verde = há lançamentos, cinza = nada ainda
+    const contador = (n, total) => n
+      ? `<span class="a-count"><span class="dot ok"></span>${n} hoje · ${brl(total)}</span>`
+      : `<span class="a-count"><span class="dot idle"></span>0 hoje</span>`;
+    const acao = (href, icone, titulo, desc, itens) => `
+      <a class="panel action" href="${href}">
+        <div class="a-top"><span class="a-ico">${ic(icone)}</span>${contador(itens.length, somar(itens))}</div>
+        <div><h3>${titulo}</h3><p>${desc}</p></div>
+        <span class="a-go">Abrir ${ic('back')}</span>
+      </a>`;
+    const link = (href, icone, titulo, desc) => `
+      <li><a href="${href}"><span class="l-ico">${ic(icone)}</span><div><b>${titulo}</b><span>${desc}</span></div><span class="chev">${ic('back')}</span></a></li>`;
 
     shell({
       back: '',
       wide: true,
-      title: `<span class="greet">${saud}, ${esc(primeiro)}! <span class="emoji" aria-hidden="true">${emoji}</span></span>`,
-      sub: dataLonga(agoraISO()),
-      right: `${installPrompt ? `<button class="circle-btn yellow" data-act="instalar" aria-label="Instalar app">${ic('download')}</button>` : ''}
-              <button class="circle-btn orange" data-act="sair" aria-label="Sair">${ic('logout')}</button>`,
+      title: `${saud}, ${esc(primeiro)}<small>${dataLonga(agoraISO())}</small>`,
+      right: `${installPrompt ? `<button class="hbtn" data-act="instalar" aria-label="Instalar app">${ic('download')}<span>Instalar</span></button>` : ''}
+              <button class="hbtn" data-act="sair" aria-label="Sair">${ic('logout')}<span>Sair</span></button>`,
       body: `
-        <section class="stats" aria-label="Resumo do dia">
-          <div class="stat total"><div class="si">${ic('cash')}</div><div><div class="k">Total do dia</div><div class="v">${brl(totalDia)}</div></div></div>
-          <div class="stat cx"><div class="si">${ic('box')}</div><div><div class="k">Caixas</div><div class="v">${ic_.length}</div></div></div>
-          <div class="stat env"><div class="si">${ic('mail')}</div><div><div class="k">Envelopes pendentes</div><div class="v">${ie.length}</div></div></div>
+        <div class="h-label">Resumo do dia</div>
+        <section class="panel kstrip" aria-label="Resumo do dia">
+          <div><div class="k">Total do dia</div><div class="v hl">${brl(totalDia)}</div></div>
+          <div><div class="k">Caixas lançados</div><div class="v">${ic_.length}</div></div>
+          <div><div class="k"><span class="dot ${ie.length ? 'pend' : 'idle'}"></span>Envelopes pendentes</div><div class="v">${ie.length}</div></div>
         </section>
-        <div class="home-grid">
-          <a class="big-card orange" href="#/caixas">
-            <div class="top">
-              <div class="ico">${ic('cash')}</div>
-              <div><h3>Fechamento de Caixas</h3><p>PDV, operador(a), valor e supervisor</p></div>
-              <span class="go">${ic('back')}</span>
-            </div>
-            ${contador(ic_.length, somar(ic_), 'caixas')}
-          </a>
-          <a class="big-card green" href="#/envelopes">
-            <div class="top">
-              <div class="ico">${ic('mail')}</div>
-              <div><h3>Envelopes</h3><p>Leia o código de barras e informe o valor</p></div>
-              <span class="go">${ic('back')}</span>
-            </div>
-            ${contador(ie.length, somar(ie), 'envelopes')}
-          </a>
-          <a class="small-card yellow" href="#/cadastros">
-            <div class="ico yellow">${ic('users')}</div>
-            <div><b>Cadastros</b><span>Operadores e supervisores</span></div>
-            <span class="arrow">${ic('back')}</span>
-          </a>
-          <a class="small-card green" href="#/relatorios">
-            <div class="ico green">${ic('file')}</div>
-            <div><b>Relatórios</b><span>Gerados nas últimas ${RET_H}h</span></div>
-            <span class="arrow">${ic('back')}</span>
-          </a>
+
+        <div class="h-label">Lançamentos</div>
+        <div class="actions">
+          ${acao('#/caixas', 'cash', 'Fechamento de Caixas', 'Conferir PDV, operador(a), valor e supervisor de cada caixa.', ic_)}
+          ${acao('#/envelopes', 'mail', 'Envelopes', 'Ler o código de barras e registrar o valor de cada envelope.', ie)}
         </div>
+
+        <div class="h-label">Gerenciar</div>
+        <ul class="panel links">
+          ${link('#/cadastros', 'users', 'Cadastros', 'Operadores de caixa e supervisores')}
+          ${link('#/relatorios', 'file', 'Relatórios', `Gerados nas últimas ${RET_H}h`)}
+        </ul>
         <p class="mode-note">${DB.online ? 'Conectado ao banco de dados online' : 'Modo local · dados salvos apenas neste aparelho'}</p>`,
     });
 
