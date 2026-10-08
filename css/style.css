@@ -90,7 +90,8 @@ main { max-width: 760px; margin: 0 auto; padding: 24px 16px calc(110px + env(saf
 .kstrip .k { font-size: .78rem; font-weight: 500; color: var(--muted); }
 .kstrip .v { font-size: 1.6rem; font-weight: 600; color: var(--ink); margin-top: 4px; letter-spacing: -.02em; overflow-wrap: anywhere; }
 .kstrip .v.hl { color: var(--orange-dark); }
-.kstrip.two { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.kstrip.split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kstrip .s { font-size: .8rem; color: var(--muted); margin-top: 4px; }
 
 /* ---------- Início ---------- */
 .actions { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -331,6 +332,7 @@ table.rt { width: 100%; border-collapse: collapse; font-size: .9rem; font-varian
   .kstrip { grid-template-columns: 1fr 1fr; }
   .kstrip > div:first-child { grid-column: 1 / -1; border-bottom: 1px solid var(--line-2); }
   .kstrip > div:nth-child(2) { border-left: 0; }
+  .kstrip.split { grid-template-columns: 1fr; }
   .kstrip > div { padding: 16px 18px; }
   .kstrip .v { font-size: 1.35rem; }
   .hbtn span { display: none; }

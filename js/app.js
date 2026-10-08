@@ -294,7 +294,6 @@
     const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
     // Só o primeiro nome (nunca e-mail completo); sem nome → "Administrador"
     const primeiro = (S.user.nome || '').split('@')[0].trim().split(/\s+/)[0] || 'Administrador';
-    const totalDia = somar(ic_) + somar(ie);
     // Contador discreto: verde = há lançamentos, cinza = nada ainda
     const contador = (n, total) => n
       ? `<span class="a-count"><span class="dot ok"></span>${n} hoje · ${brl(total)}</span>`
@@ -316,10 +315,17 @@
               <button class="hbtn" data-act="sair" aria-label="Sair">${ic('logout')}<span>Sair</span></button>`,
       body: `
         <div class="h-label">Resumo do dia</div>
-        <section class="panel kstrip" aria-label="Resumo do dia">
-          <div><div class="k">Total do dia</div><div class="v hl">${brl(totalDia)}</div></div>
-          <div><div class="k">Caixas lançados</div><div class="v">${ic_.length}</div></div>
-          <div><div class="k"><span class="dot ${ie.length ? 'pend' : 'idle'}"></span>Envelopes pendentes</div><div class="v">${ie.length}</div></div>
+        <section class="panel kstrip split" aria-label="Resumo do dia">
+          <div>
+            <div class="k">Total em caixas</div>
+            <div class="v hl">${brl(somar(ic_))}</div>
+            <div class="s">${ic_.length} ${ic_.length === 1 ? 'caixa lançado' : 'caixas lançados'}</div>
+          </div>
+          <div>
+            <div class="k">Total em envelopes</div>
+            <div class="v hl">${brl(somar(ie))}</div>
+            <div class="s"><span class="dot ${ie.length ? 'pend' : 'idle'}"></span>${ie.length} ${ie.length === 1 ? 'envelope pendente' : 'envelopes pendentes'}</div>
+          </div>
         </section>
 
         <div class="h-label">Lançamentos</div>
